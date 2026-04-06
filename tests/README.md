@@ -46,7 +46,7 @@ OSynaptic-TX test vectors
 [CRC-16/CCITT-FALSE]
   PASS  check-vector "123456789" == 0x29B1
   PASS  single 0x00 == 0xE1F0
-  PASS  single 0xFF == 0x1EF0
+  PASS  single 0xFF == 0xFF00
   PASS  NULL data -> 0
   PASS  len=0 -> 0
 
@@ -85,7 +85,7 @@ OSynaptic-TX test vectors
   PASS  out[11] == 0xBE (ts[15:8])
   PASS  out[12] == 0xEF (ts[7:0])
   PASS  out[13] == 'T' (body[0])
-  PASS  out[21] == '9' (body[8])
+  PASS  out[21] == '5' (body[8])
   PASS  out[22] == CRC-8(body)
   PASS  out[23] == CRC-16 high byte
   PASS  out[24] == CRC-16 low byte

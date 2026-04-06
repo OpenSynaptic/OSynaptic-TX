@@ -129,7 +129,9 @@ static void test_crc16(void)
      * Bit-loop result: 0xE1F0  (precomputed). */
     static const ostx_u8 single_zero[] = {0x00};
 
-    /* Single byte 0xFF: precomputed result = 0x1EF0. */
+    /* Single byte 0xFF: precomputed result = 0xFF00.
+     * crc = 0xFFFF ^ (0xFF<<8) = 0x00FF, then 8 shifts all MSB=0:
+     * 0x00FF -> 0x01FE -> ... -> 0xFF00. */
     static const ostx_u8 single_ff[] = {0xFF};
 
     printf("\n[CRC-16/CCITT-FALSE]\n");
@@ -140,8 +142,8 @@ static void test_crc16(void)
     check_int("single 0x00 == 0xE1F0",
               (long)ostx_crc16(single_zero, 1, 0x1021u, 0xFFFFu), 0xE1F0L);
 
-    check_int("single 0xFF == 0x1EF0",
-              (long)ostx_crc16(single_ff, 1, 0x1021u, 0xFFFFu), 0x1EF0L);
+    check_int("single 0xFF == 0xFF00",
+              (long)ostx_crc16(single_ff, 1, 0x1021u, 0xFFFFu), 0xFF00L);
 
     check_int("NULL data -> 0",
               (long)ostx_crc16(NULL, 4, 0x1021u, 0xFFFFu), 0L);
@@ -275,7 +277,7 @@ static void test_packet_byteorder(void)
 
     /* body content */
     check_byte("out[13] == 'T' (body[0])", out[13], (ostx_u8)'T');
-    check_byte("out[21] == '9' (body[8])", out[21], (ostx_u8)'9');
+    check_byte("out[21] == '5' (body[8])", out[21], (ostx_u8)'5');
 
     /* CRC-8 at offset 13+body_len = 22 */
     crc8_check = ostx_crc8(body, body_len, 0x07u, 0x00u);

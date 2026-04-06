@@ -133,7 +133,7 @@ int ostx_stream_pack(
 
             /* Emit digits MSB-first -- no reversal, no tmp buffer */
             for (i = start; i <= 5; ++i) {
-                EMIT_BODY(S_ALPHA[(int)(n / P62[i])]);
+                EMIT_BODY((ostx_u8)(unsigned char)S_ALPHA[(int)(n / P62[i])]);
                 n %= P62[i];
             }
         }
