@@ -6,6 +6,7 @@
  */
 #include "ostx_config.h"
 #if OSTX_ENABLE_STREAM
+#include "ostx_b62.h"
 #include "ostx_stream.h"
 
 /* Base-62 alphabet -- in Flash/ROM, not counted against RAM. */
