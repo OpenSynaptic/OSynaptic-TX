@@ -51,7 +51,7 @@ static void uart_emit(ostx_u8 b, void * /*ctx*/)
 /* ------------------------------------------------------------------
  * Sensor descriptor in Flash
  * ------------------------------------------------------------------ */
-OSTX_STATIC_DEFINE(s_temp, 0x00000001UL, "T1", "Cel");
+OSTX_STATIC_DEFINE(s_temp, 0x00000001UL, "T1", OSTX_UNIT(Cel));
 
 static ostx_u8  g_tid     = 0u;
 static ostx_u32 g_ts_sec  = 0u;   /* simple free-running second counter */

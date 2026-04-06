@@ -66,15 +66,17 @@ int ostx_stream_pack(
 ) {
     ostx_u8  crc8;
     ostx_u16 crc16;
-    ostx_u32 n;          /* b62 absolute value -- no tmp buffer needed   */
+    ostx_u32 n;
+    ostx_u32 aid;
+    char     aid_str[11];
+    char     ts_b64[9];
+    int      aid_len;
     int      b62_neg;
-    int      start;      /* first P62[] index with P62[start] <= n       */
+    int      start;
     int      i;
     int      pfx_len;
     int      total;
 
-    /* Inline helper: emit one byte, always update crc16;
-     * update crc8 only while in the body region (body_crc flag). */
 #define EMIT_HDR(b)  do { ostx_u8 _b=(b); crc16=s_crc16_byte(crc16,_b); emit(_b,ctx); total++; } while(0)
 #define EMIT_BODY(b) do { ostx_u8 _b=(b); crc8=s_crc8_byte(crc8,_b); crc16=s_crc16_byte(crc16,_b); emit(_b,ctx); total++; } while(0)
 
@@ -84,8 +86,7 @@ int ostx_stream_pack(
     crc16 = 0xFFFFu;
     total = 0;
 
-    /* ── Header (13 bytes) ─────────────────────────────────────────── */
-    /* [0] cmd -- patch tid/ts into the template on-the-fly */
+    /* ── Binary header (13 bytes) ───────────────────────────────────── */
     EMIT_HDR(sensor->hdr[0]);             /* cmd              */
     EMIT_HDR(sensor->hdr[1]);             /* route_count = 1  */
     EMIT_HDR(sensor->hdr[2]);             /* aid[0] BE        */
@@ -100,40 +101,48 @@ int ostx_stream_pack(
     EMIT_HDR((ostx_u8)((ts_sec >>  8) & 0xFFu)); /* ts[4]    */
     EMIT_HDR((ostx_u8)( ts_sec        & 0xFFu)); /* ts[5]    */
 
-    /* ── Body prefix: "sid|unit|" ─────────────────────────────────── */
+    /* ── Derive AID decimal string and ts_b64 for body header ─────── */
+    aid = ((ostx_u32)sensor->hdr[2] << 24)
+        | ((ostx_u32)sensor->hdr[3] << 16)
+        | ((ostx_u32)sensor->hdr[4] <<  8)
+        |  (ostx_u32)sensor->hdr[5];
+    aid_len = ostx_u32toa(aid, aid_str, (int)sizeof(aid_str));
+    if (aid_len <= 0) { return 0; }
+    ostx_b64url_ts(ts_sec, ts_b64);
+
+    /* ── Body: "{aid}.U.{ts_b64}|{body_pfx}{b62}|" ─────────────────── */
     pfx_len = sensor->body_pfx_len;
+
+    /* Worst-case: 22 body-header + pfx + 7 b62 + 1 '|' */
+    if (13 + 22 + pfx_len + 7 + 1 + 3 > OSTX_PACKET_MAX) { return 0; }
+
+    /* Header segment: "{aid}.U.{ts_b64}|" */
+    for (i = 0; i < aid_len; ++i) { EMIT_BODY((ostx_u8)aid_str[i]); }
+    EMIT_BODY((ostx_u8)'.');
+    EMIT_BODY((ostx_u8)'U');
+    EMIT_BODY((ostx_u8)'.');
+    for (i = 0; i < 8; ++i)       { EMIT_BODY((ostx_u8)ts_b64[i]); }
+    EMIT_BODY((ostx_u8)'|');
+
+    /* Sensor prefix: e.g. "T1>U.A01:" */
     for (i = 0; i < pfx_len; ++i) {
         EMIT_BODY((ostx_u8)sensor->body_pfx[i]);
     }
 
-    /* ── Inline b62 encode + emit (MSB-first, no reversal buffer) ─── */
-    /*
-     * P62[i] = 62^(5-i) stored in Flash/ROM.  Max i32 needs 6 digits
-     * (62^5=916132832 < 2^31-1 < 62^6), so worst-case body suffix = 7 B
-     * (6 digits + optional '-').  Conservative frame cap check below.
-     */
+    /* ── Inline b62 encode + emit (MSB-first, no tmp buffer) ─────── */
     {
-        /* 62^5 .. 62^0 in descending order -- static const goes to Flash */
         static const ostx_u32 P62[6] = {
             916132832UL, 14776336UL, 238328UL, 3844UL, 62UL, 1UL
         };
-
-        /* Worst-case frame size: 13 hdr + pfx + 7 b62 chars + 3 CRC */
-        if (13 + pfx_len + 7 + 3 > OSTX_PACKET_MAX) { return 0; }
 
         if (scaled == 0) {
             EMIT_BODY((ostx_u8)'0');
         } else {
             b62_neg = (scaled < 0) ? 1 : 0;
             n = b62_neg ? (ostx_u32)(-(scaled + 1)) + 1u : (ostx_u32)scaled;
-
             if (b62_neg) { EMIT_BODY((ostx_u8)'-'); }
-
-            /* Find highest applicable power: first P62[start] <= n */
             start = 0;
             while (start < 5 && n < P62[start]) { ++start; }
-
-            /* Emit digits MSB-first -- no reversal, no tmp buffer */
             for (i = start; i <= 5; ++i) {
                 EMIT_BODY((ostx_u8)(unsigned char)S_ALPHA[(int)(n / P62[i])]);
                 n %= P62[i];
@@ -141,13 +150,15 @@ int ostx_stream_pack(
         }
     }
 
-    /* ── CRC-8 trailer ─────────────────────────────────────────────── */
-    /* crc8 is final; emit it and fold into crc16 */
+    /* Trailing sensor '|' */
+    EMIT_BODY((ostx_u8)'|');
+
+    /* ── CRC-8 trailer ──────────────────────────────────────────────── */
     crc16 = s_crc16_byte(crc16, crc8);
     emit(crc8, ctx);
     total++;
 
-    /* ── CRC-16 trailer ────────────────────────────────────────────── */
+    /* ── CRC-16 trailer ─────────────────────────────────────────────── */
     emit((ostx_u8)((crc16 >> 8) & 0xFFu), ctx);
     emit((ostx_u8)( crc16       & 0xFFu), ctx);
     total += 2;

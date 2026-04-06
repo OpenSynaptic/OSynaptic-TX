@@ -66,7 +66,7 @@ typedef struct {
         0x00u, 0x00u,                             /* ts[0..1] = 0      */   \
         0x00u, 0x00u, 0x00u, 0x00u               /* ts[2..5] (patched) */  \
     };                                                                       \
-    static const char varname##__pfx[] = sid_str "|" unit_str "|";         \
+    static const char varname##__pfx[] = sid_str ">U." unit_str ":";         \
     const OSTXStaticSensor varname = {  /* const -> Flash/ROM on AVR     */  \
         varname##__hdr,                                                      \
         varname##__pfx,                                                      \
@@ -85,7 +85,7 @@ typedef struct {
  * Returns total frame length on success, 0 on error.
  *
  * Wire format (identical to ostx_sensor_pack / ostx_packet_build):
- *   [cmd:1][route:1][aid:4BE][tid:1][ts:6BE][sid|unit|b62][crc8:1][crc16:2]
+ *   [cmd:1][route:1][aid:4BE][tid:1][ts:6BE][{aid}.U.{ts_b64}|{sid}>U.{unit}:{b62}|][crc8:1][crc16:2]
  * -------------------------------------------------------------------------*/
 int ostx_static_pack(
     const OSTXStaticSensor *sensor,

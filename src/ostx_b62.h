@@ -23,6 +23,23 @@ extern "C" {
  */
 int ostx_b62_encode(ostx_i32 value, char *out, int out_cap);
 
+/*
+ * Convert an unsigned 32-bit integer to a NUL-terminated decimal string.
+ *
+ * Returns the number of characters written (excluding NUL), 0 on error
+ * (cap too small or NULL pointer).
+ */
+int ostx_u32toa(ostx_u32 n, char *buf, int cap);
+
+/*
+ * Encode a 32-bit Unix timestamp as an 8-character base64url string.
+ *
+ * The timestamp is treated as the lower 32 bits of a 48-bit big-endian
+ * word (upper 16 bits = 0), matching the OpenSynaptic ts_b64 wire field.
+ * out must have capacity for at least 9 bytes (8 chars + NUL).
+ */
+void ostx_b64url_ts(ostx_u32 ts_sec, char out[9]);
+
 #ifdef __cplusplus
 }
 #endif

@@ -23,6 +23,19 @@ extern "C" {
  */
 int ostx_b62_encode(ostx_i32 value, char *out, int out_cap);
 
+/*
+ * Convert a uint32 to a decimal ASCII string.
+ * Returns the number of characters written (excluding NUL), or 0 on error.
+ */
+int  ostx_u32toa(ostx_u32 n, char *buf, int cap);
+
+/*
+ * Encode a 32-bit Unix timestamp to the 8-character base64url string used
+ * in the OpenSynaptic wire body header (6-byte big-endian, upper 2 bytes 0).
+ * out must hold at least 9 bytes; out[8] is always set to '\0'.
+ */
+void ostx_b64url_ts(ostx_u32 ts_sec, char out[9]);
+
 #ifdef __cplusplus
 }
 #endif

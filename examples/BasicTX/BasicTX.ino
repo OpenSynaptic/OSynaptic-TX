@@ -16,10 +16,10 @@
 
 /* ------------------------------------------------------------------
  * Compile-time sensor descriptor -- baked into Flash, not RAM.
- * Change "T1"/"Cel" to your sensor ID and unit.
+ * Change "T1" to your sensor ID and OSTX_UNIT(Cel) to your unit.
  * AID (agent ID) must match what the OpenSynaptic server assigned.
  * ------------------------------------------------------------------ */
-OSTX_STATIC_DEFINE(s_temp, 0x00000001UL, "T1", "Cel");
+OSTX_STATIC_DEFINE(s_temp, 0x00000001UL, "T1", OSTX_UNIT(Cel));
 
 /* ------------------------------------------------------------------
  * Streaming emit callback -- hands each byte directly to Serial.

@@ -68,7 +68,7 @@ static ostx_u32 get_time_sec(void)
 /* Sensor_id and unit are baked into the template at compile time.         */
 /* To change them, recompile.  AID must match device registration.        */
 /* ----------------------------------------------------------------------- */
-OSTX_STATIC_DEFINE(s_temp, 0x00000001UL, "T1", "Cel");
+OSTX_STATIC_DEFINE(s_temp, 0x00000001UL, "T1", OSTX_UNIT(Cel));
 
 /* ----------------------------------------------------------------------- */
 /* Streaming emit callback (Option C) -- write directly to UART, no buf   */
@@ -105,7 +105,7 @@ int main(void)
     len = ostx_sensor_pack(
         aid, tid, get_time_sec(),
         "T1",   /* sensor_id */
-        "Cel",  /* unit      */
+        OSTX_UNIT(Cel),  /* unit code  A01 -- degree Celsius */
         scaled,
         g_tx_buf
     );

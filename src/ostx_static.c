@@ -12,21 +12,23 @@ int ostx_static_pack(
     ostx_i32 scaled,
     ostx_u8 *out
 ) {
-    int      body_pfx_len;
+    char     aid_str[11];
+    char     ts_b64[9];
+    int      aid_len;
     int      b62_len;
     int      body_len;
     int      frame_len;
     int      crc_off;
+    int      body_off;
     int      i;
     char    *b62_slot;
     ostx_u8  crc8v;
     ostx_u16 crc16v;
+    ostx_u32 aid;
 
     if (!sensor || !out) { return 0; }
 
-    body_pfx_len = sensor->body_pfx_len;
-
-    /* 1. Copy 13-byte header template into output frame. */
+    /* 1. Copy 13-byte binary header template into output frame. */
     for (i = 0; i < 13; ++i) {
         out[i] = sensor->hdr[i];
     }
@@ -34,39 +36,67 @@ int ostx_static_pack(
     /* 2. Patch tid at byte [6]. */
     out[6] = tid;
 
-    /* 3. Patch ts_sec into bytes [9..12] (big-endian; [7..8] are already 0). */
+    /* 3. Patch ts_sec into bytes [9..12]. */
     out[9]  = (ostx_u8)((ts_sec >> 24) & 0xFFu);
     out[10] = (ostx_u8)((ts_sec >> 16) & 0xFFu);
     out[11] = (ostx_u8)((ts_sec >>  8) & 0xFFu);
     out[12] = (ostx_u8)( ts_sec        & 0xFFu);
 
-    /* 4. Copy body prefix ("sid|unit|") directly into frame at [13..]. */
-    for (i = 0; i < body_pfx_len; ++i) {
-        out[13 + i] = (ostx_u8)sensor->body_pfx[i];
+    /* 4. Derive AID decimal string from binary header bytes [2..5]. */
+    aid = ((ostx_u32)sensor->hdr[2] << 24)
+        | ((ostx_u32)sensor->hdr[3] << 16)
+        | ((ostx_u32)sensor->hdr[4] <<  8)
+        |  (ostx_u32)sensor->hdr[5];
+    aid_len = ostx_u32toa(aid, aid_str, (int)sizeof(aid_str));
+    if (aid_len <= 0) { return 0; }
+
+    /* 5. Encode timestamp as 8-char base64url string. */
+    ostx_b64url_ts(ts_sec, ts_b64);
+
+    /*
+     * 6. Write body text directly into frame at offset 13:
+     *      "{aid}.U.{ts_b64}|{body_pfx}{b62}|"
+     *    body_pfx = "sid>U.unit:"  (baked at compile time)
+     */
+    body_off = 13;
+
+    /* Header segment: "{aid}.U.{ts_b64}|" */
+    for (i = 0; i < aid_len; ++i) { out[body_off++] = (ostx_u8)aid_str[i]; }
+    out[body_off++] = (ostx_u8)'.';
+    out[body_off++] = (ostx_u8)'U';
+    out[body_off++] = (ostx_u8)'.';
+    for (i = 0; i < 8; ++i)       { out[body_off++] = (ostx_u8)ts_b64[i]; }
+    out[body_off++] = (ostx_u8)'|';
+
+    /* Sensor segment prefix: e.g. "T1>U.A01:" */
+    for (i = 0; i < sensor->body_pfx_len; ++i) {
+        out[body_off++] = (ostx_u8)sensor->body_pfx[i];
     }
 
-    /* 5. Encode b62 value directly into frame (zero-copy vs body buffer). */
-    b62_slot = (char *)(out + 13 + body_pfx_len);
+    /* 7. Encode b62 value directly into frame (zero-copy). */
+    b62_slot = (char *)(out + body_off);
     if (!ostx_b62_encode(scaled, b62_slot, OSTX_B62_MAX)) { return 0; }
-
-    /* Inline strlen on the just-written b62 string (max 7 chars, fast). */
     b62_len = 0;
     while (b62_slot[b62_len]) { ++b62_len; }
+    body_off += b62_len;
 
-    body_len  = body_pfx_len + b62_len;
-    frame_len = 13 + body_len + 3;
+    /* Trailing sensor '|' */
+    out[body_off++] = (ostx_u8)'|';
+
+    body_len  = body_off - 13;
+    frame_len = body_off + 3; /* body + crc8(1) + crc16(2) */
     if (frame_len > OSTX_PACKET_MAX) { return 0; }
 
-    crc_off = 13 + body_len;
+    crc_off = body_off;
 
-    /* 6. CRC-8 over body bytes only (same region as ostx_packet_build). */
+    /* 8. CRC-8 over body bytes only. */
     crc8v        = ostx_crc8(out + 13, body_len, 0x07u, 0x00u);
     out[crc_off] = crc8v;
 
-    /* 7. CRC-16 over all bytes preceding the CRC-16 field. */
-    crc16v             = ostx_crc16(out, crc_off + 1, 0x1021u, 0xFFFFu);
-    out[crc_off + 1]   = (ostx_u8)((crc16v >> 8) & 0xFFu);
-    out[crc_off + 2]   = (ostx_u8)( crc16v        & 0xFFu);
+    /* 9. CRC-16 over everything preceding the CRC-16 field. */
+    crc16v           = ostx_crc16(out, crc_off + 1, 0x1021u, 0xFFFFu);
+    out[crc_off + 1] = (ostx_u8)((crc16v >> 8) & 0xFFu);
+    out[crc_off + 2] = (ostx_u8)( crc16v        & 0xFFu);
 
     return frame_len;
 }

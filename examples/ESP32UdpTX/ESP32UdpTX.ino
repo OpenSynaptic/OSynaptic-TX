@@ -41,8 +41,8 @@ static const unsigned long WIFI_RETRY_MS       = 3000UL;
 /* ------------------------------------------------------------------
  * Sensor descriptors (Flash)
  * ------------------------------------------------------------------ */
-OSTX_STATIC_DEFINE(s_temp, 0x00000001UL, "T1", "Cel");
-OSTX_STATIC_DEFINE(s_hum,  0x00000001UL, "H1", "Pct");
+OSTX_STATIC_DEFINE(s_temp, 0x00000001UL, "T1", OSTX_UNIT(Cel));
+OSTX_STATIC_DEFINE(s_hum,  0x00000001UL, "H1", OSTX_UNIT(pct));
 
 /* ------------------------------------------------------------------
  * UDP state

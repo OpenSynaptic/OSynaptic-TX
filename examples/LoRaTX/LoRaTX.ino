@@ -63,7 +63,7 @@ static const long LORA_FREQ = 915E6;  /* 915 MHz (Americas). Use 868E6 for EU. *
 /* ------------------------------------------------------------------
  * Sensor descriptor (Flash)
  * ------------------------------------------------------------------ */
-OSTX_STATIC_DEFINE(s_temp, 0x00000001UL, "T1", "Cel");
+OSTX_STATIC_DEFINE(s_temp, 0x00000001UL, "T1", OSTX_UNIT(Cel));
 
 /* ------------------------------------------------------------------
  * Streaming emit -- accumulate into a static buffer, then LoRa sends
