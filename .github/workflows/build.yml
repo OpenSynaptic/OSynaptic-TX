@@ -57,6 +57,40 @@ jobs:
           echo "Library structure OK"
 
   # -------------------------------------------------------------------------
+  # CMake native build + install verification
+  # -------------------------------------------------------------------------
+  cmake-native:
+    name: CMake / GCC install verify
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure
+        run: |
+          cmake -S . -B build/cmake \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_FLAGS="-std=c89 -pedantic -Wall -Wextra -Werror" \
+            -DCMAKE_INSTALL_PREFIX=/tmp/ostx_install \
+            -DOSTX_BUILD_EXAMPLES=ON \
+            -DOSTX_BUILD_TESTS=ON
+
+      - name: Build
+        run: cmake --build build/cmake --parallel
+
+      - name: Test
+        run: ctest --test-dir build/cmake --output-on-failure
+
+      - name: Install
+        run: cmake --install build/cmake
+
+      - name: Verify cmake package files
+        run: |
+          test -f /tmp/ostx_install/lib/cmake/ostx/ostxTargets.cmake
+          test -f /tmp/ostx_install/lib/cmake/ostx/ostxConfig.cmake
+          test -f /tmp/ostx_install/lib/cmake/ostx/ostxConfigVersion.cmake
+          echo "CMake package files OK"
+
+  # -------------------------------------------------------------------------
   # ARM Cortex-M0 cross-compile (for users who also target SAMD / STM32)
   # -------------------------------------------------------------------------
   arm-cross:
@@ -105,7 +139,7 @@ jobs:
           for src in src/ostx_crc.c src/ostx_b62.c src/ostx_packet.c \
                      src/ostx_stream.c; do
             avr-gcc -mmcu=atmega328p -Os -std=c89 \
-                    -DOSTX_PACKET_MAX=32 -DOSTX_BODY_MAX=14 \
+                    -DOSTX_PACKET_MAX=56 -DOSTX_BODY_MAX=40 \
                     -DOSTX_ID_MAX=3 -DOSTX_UNIT_MAX=4 \
                     -Isrc \
                     -c "$src" -o "build/size/$(basename ${src%.c}.o)"
