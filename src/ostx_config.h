@@ -31,9 +31,12 @@
 #  define OSTX_B62_MAX 14
 #endif
 
-/* Maximum body byte count: sensor_id + '|' + unit + '|' + b62_value.
- * With OSTX_ID_MAX=9, OSTX_UNIT_MAX=9, OSTX_B62_MAX=14 the worst case
- * is 8 + 1 + 8 + 1 + 13 = 31.  Default = 64 for comfortable margin.     */
+/* Maximum body byte count.  The new OpenSynaptic body layout is:
+ *   "{aid}.U.{ts_b64}|{sid}>U.{unit}:{b62}|"
+ * Worst case (OSTX_ID_MAX=9, OSTX_UNIT_MAX=9, OSTX_B62_MAX=14):
+ *   aid(10) + ".U."(3) + ts_b64(8) + "|"(1) +
+ *   sid(8) + ">U."(3) + unit(8) + ":"(1) + b62(13) + "|"(1) = 56.
+ * Default = 64 for comfortable margin.                                    */
 #ifndef OSTX_BODY_MAX
 #  define OSTX_BODY_MAX 64
 #endif
@@ -56,6 +59,19 @@
 #ifndef OSTX_CMD_DATA_FULL
 #  define OSTX_CMD_DATA_FULL 63
 #endif
+
+/* -------------------------------------------------------------------------
+ * Convenience unit-code macros.
+ * OSTX_UNIT(sym) expands to the OpenSynaptic wire unit-code string.
+ * Usage:  OSTX_UNIT(Cel)  ->  "A01"                                       */
+#define OSTX_UNIT_K     "A00"  /* kelvin            */
+#define OSTX_UNIT_Cel   "A01"  /* degree Celsius    */
+#define OSTX_UNIT_DegF  "A02"  /* degree Fahrenheit */
+#define OSTX_UNIT_Pa    "900"  /* pascal            */
+#define OSTX_UNIT_s     "B00"  /* second            */
+#define OSTX_UNIT_min   "B01"  /* minute            */
+#define OSTX_UNIT_h     "B02"  /* hour              */
+#define OSTX_UNIT(sym)  OSTX_UNIT_##sym
 
 /* -------------------------------------------------------------------------
  * Per-module enable switches.

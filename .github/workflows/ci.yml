@@ -5,6 +5,7 @@ on:
     branches: [main, develop]
   pull_request:
     branches: [main, develop]
+  workflow_dispatch:
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -73,9 +74,9 @@ jobs:
       matrix:
         tier:
           - name: Ultra
-            flags: "-DOSTX_PACKET_MAX=32 -DOSTX_BODY_MAX=14 -DOSTX_ID_MAX=3 -DOSTX_UNIT_MAX=4 -DOSTX_B62_MAX=7 -DOSTX_VALUE_SCALE=100L"
+            flags: "-DOSTX_PACKET_MAX=56 -DOSTX_BODY_MAX=40 -DOSTX_ID_MAX=3 -DOSTX_UNIT_MAX=4 -DOSTX_B62_MAX=7 -DOSTX_VALUE_SCALE=100L"
           - name: Tight
-            flags: "-DOSTX_PACKET_MAX=48 -DOSTX_BODY_MAX=24 -DOSTX_ID_MAX=5 -DOSTX_UNIT_MAX=5 -DOSTX_B62_MAX=8 -DOSTX_VALUE_SCALE=1000L"
+            flags: "-DOSTX_PACKET_MAX=64 -DOSTX_BODY_MAX=48 -DOSTX_ID_MAX=5 -DOSTX_UNIT_MAX=5 -DOSTX_B62_MAX=8 -DOSTX_VALUE_SCALE=1000L"
           - name: Comfort
             flags: "-DOSTX_PACKET_MAX=128 -DOSTX_BODY_MAX=96 -DOSTX_ID_MAX=12 -DOSTX_UNIT_MAX=12 -DOSTX_B62_MAX=14 -DOSTX_VALUE_SCALE=10000L"
     steps:
