@@ -1,4 +1,6 @@
 /* ostx_static.c -- Compile-time template packer for OSynaptic-TX (C89) */
+#include "ostx_config.h"
+#if OSTX_ENABLE_STATIC
 #include "ostx_static.h"
 #include "ostx_b62.h"
 #include "ostx_crc.h"
@@ -68,3 +70,5 @@ int ostx_static_pack(
 
     return frame_len;
 }
+
+#endif /* OSTX_ENABLE_STATIC */

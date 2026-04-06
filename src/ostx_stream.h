@@ -47,6 +47,10 @@
 #include "ostx_types.h"
 #include "ostx_static.h"   /* OSTXStaticSensor, OSTX_STATIC_DEFINE */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*
  * ostx_emit_fn -- user-supplied byte-sink callback.
  *
@@ -78,5 +82,9 @@ int ostx_stream_pack(
     ostx_emit_fn emit,
     void        *ctx
 );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OSTX_STREAM_H */

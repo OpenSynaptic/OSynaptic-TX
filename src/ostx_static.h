@@ -35,6 +35,10 @@
 #include "ostx_config.h"
 #include "ostx_types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* -------------------------------------------------------------------------
  * Descriptor struct (all pointers into Flash/ROM).
  * -------------------------------------------------------------------------*/
@@ -94,5 +98,9 @@ int ostx_static_pack(
     ostx_i32 scaled,
     ostx_u8 *out
 );
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* OSTX_STATIC_H */

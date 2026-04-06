@@ -1,4 +1,6 @@
 /* ostx_sensor.c -- Single-sensor packet helper for OSynaptic-TX (C89) */
+#include "ostx_config.h"
+#if OSTX_ENABLE_SENSOR
 #include "ostx_sensor.h"
 #include "ostx_b62.h"
 #include "ostx_packet.h"
@@ -52,3 +54,5 @@ int ostx_sensor_pack(
         out
     );
 }
+
+#endif /* OSTX_ENABLE_SENSOR */

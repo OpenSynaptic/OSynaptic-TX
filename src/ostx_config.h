@@ -57,4 +57,37 @@
 #  define OSTX_CMD_DATA_FULL 63
 #endif
 
+/* -------------------------------------------------------------------------
+ * Per-module enable switches.
+ * Set any of these to 0 to exclude that module from compilation.
+ * The linker will drop unreferenced code automatically, but explicit
+ * disabling also removes the #include chain and any associated RAM.
+ *
+ * Dependencies:
+ *   OSTX_ENABLE_STREAM requires OSTX_ENABLE_STATIC (for OSTXStaticSensor).
+ *   All three modules depend on the always-on primitives:
+ *   ostx_crc, ostx_b62, ostx_packet.
+ *
+ * Override in your Makefile/CMake:
+ *   -DOSTX_ENABLE_SENSOR=0   -- exclude API A (ostx_sensor_pack)
+ *   -DOSTX_ENABLE_STATIC=0   -- exclude API B (ostx_static_pack)
+ *   -DOSTX_ENABLE_STREAM=0   -- exclude API C (ostx_stream_pack)
+ * -------------------------------------------------------------------------*/
+#ifndef OSTX_ENABLE_SENSOR
+#  define OSTX_ENABLE_SENSOR 1
+#endif
+
+#ifndef OSTX_ENABLE_STATIC
+#  define OSTX_ENABLE_STATIC 1
+#endif
+
+/* Enabling STREAM forces STATIC on (STREAM needs OSTXStaticSensor). */
+#ifndef OSTX_ENABLE_STREAM
+#  define OSTX_ENABLE_STREAM 1
+#endif
+#if OSTX_ENABLE_STREAM && !OSTX_ENABLE_STATIC
+#  undef  OSTX_ENABLE_STATIC
+#  define OSTX_ENABLE_STATIC 1
+#endif
+
 #endif /* OSTX_CONFIG_H */

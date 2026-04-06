@@ -4,6 +4,8 @@
  * CRC-8 and CRC-16 are updated one byte at a time as the frame
  * is emitted; no output buffer is needed.
  */
+#include "ostx_config.h"
+#if OSTX_ENABLE_STREAM
 #include "ostx_stream.h"
 
 /* Base-62 alphabet -- in Flash/ROM, not counted against RAM. */
@@ -155,3 +157,5 @@ int ostx_stream_pack(
 
     return total;
 }
+
+#endif /* OSTX_ENABLE_STREAM */

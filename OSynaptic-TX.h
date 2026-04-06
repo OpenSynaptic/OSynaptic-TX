@@ -19,9 +19,15 @@
 
 #include "src/ostx_config.h"
 #include "src/ostx_types.h"
-#include "src/ostx_sensor.h"
-#include "src/ostx_static.h"
-#include "src/ostx_stream.h"
+#if OSTX_ENABLE_SENSOR
+#  include "src/ostx_sensor.h"
+#endif
+#if OSTX_ENABLE_STATIC
+#  include "src/ostx_static.h"
+#endif
+#if OSTX_ENABLE_STREAM
+#  include "src/ostx_stream.h"
+#endif
 #include "src/ostx_units.h"
 
 #endif /* OSTX_ARDUINO_H */
