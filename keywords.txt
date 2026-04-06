@@ -1,0 +1,181 @@
+# Syntax highlighting keywords for OSynaptic-TX Arduino library
+# Format: KEYWORD<TAB>TOKENTYPE
+# TOKENTYPE: KEYWORD1 = datatype, KEYWORD2 = function, LITERAL1 = constant
+
+##################################
+# Types (KEYWORD1)
+##################################
+
+ostx_u8	KEYWORD1
+ostx_u16	KEYWORD1
+ostx_u32	KEYWORD1
+ostx_i32	KEYWORD1
+OSTXSensorDesc	KEYWORD1
+OSTXStaticSensor	KEYWORD1
+
+##################################
+# API A — Dynamic (KEYWORD2)
+##################################
+
+ostx_sensor_pack	KEYWORD2
+
+##################################
+# API B — Static (KEYWORD2)
+##################################
+
+ostx_static_pack	KEYWORD2
+
+##################################
+# API C — Streaming (KEYWORD2)
+##################################
+
+ostx_stream_pack	KEYWORD2
+
+##################################
+# Low-level helpers (KEYWORD2)
+##################################
+
+ostx_crc8_update	KEYWORD2
+ostx_crc16_update	KEYWORD2
+ostx_b62_encode	KEYWORD2
+ostx_packet_build	KEYWORD2
+
+##################################
+# Unit validation macro (KEYWORD2)
+##################################
+
+OSTX_UNIT	KEYWORD2
+
+##################################
+# Unit constants — Temperature (LITERAL1)
+##################################
+
+OSTX_UNIT_K	LITERAL1
+OSTX_UNIT_Cel	LITERAL1
+OSTX_UNIT_degF	LITERAL1
+OSTX_UNIT_degRe	LITERAL1
+
+##################################
+# Unit constants — Length (LITERAL1)
+##################################
+
+OSTX_UNIT_m	LITERAL1
+OSTX_UNIT_in	LITERAL1
+OSTX_UNIT_ft	LITERAL1
+OSTX_UNIT_nmi	LITERAL1
+OSTX_UNIT_AU	LITERAL1
+OSTX_UNIT_ang	LITERAL1
+
+##################################
+# Unit constants — Mass (LITERAL1)
+##################################
+
+OSTX_UNIT_g	LITERAL1
+OSTX_UNIT_lb	LITERAL1
+OSTX_UNIT_oz	LITERAL1
+OSTX_UNIT_t	LITERAL1
+OSTX_UNIT_u	LITERAL1
+
+##################################
+# Unit constants — Time (LITERAL1)
+##################################
+
+OSTX_UNIT_s	LITERAL1
+OSTX_UNIT_min	LITERAL1
+OSTX_UNIT_h	LITERAL1
+OSTX_UNIT_d	LITERAL1
+OSTX_UNIT_wk	LITERAL1
+OSTX_UNIT_ann	LITERAL1
+
+##################################
+# Unit constants — Electric / EM (LITERAL1)
+##################################
+
+OSTX_UNIT_A	LITERAL1
+OSTX_UNIT_Bi	LITERAL1
+OSTX_UNIT_Gau	LITERAL1
+OSTX_UNIT_V	LITERAL1
+OSTX_UNIT_Ohm	LITERAL1
+OSTX_UNIT_F	LITERAL1
+
+##################################
+# Unit constants — Substance / Light (LITERAL1)
+##################################
+
+OSTX_UNIT_mol	LITERAL1
+OSTX_UNIT_eq	LITERAL1
+OSTX_UNIT_osm	LITERAL1
+OSTX_UNIT_count	LITERAL1
+OSTX_UNIT_cd	LITERAL1
+OSTX_UNIT_cp	LITERAL1
+OSTX_UNIT_hk	LITERAL1
+
+##################################
+# Unit constants — Pressure (LITERAL1)
+##################################
+
+OSTX_UNIT_Pa	LITERAL1
+OSTX_UNIT_bar	LITERAL1
+OSTX_UNIT_psi	LITERAL1
+OSTX_UNIT_atm	LITERAL1
+OSTX_UNIT_mmHg	LITERAL1
+
+##################################
+# Unit constants — Frequency / Energy (LITERAL1)
+##################################
+
+OSTX_UNIT_Hz	LITERAL1
+OSTX_UNIT_rpm	LITERAL1
+OSTX_UNIT_deg_s	LITERAL1
+OSTX_UNIT_rad_s	LITERAL1
+OSTX_UNIT_W	LITERAL1
+OSTX_UNIT_J	LITERAL1
+OSTX_UNIT_cal	LITERAL1
+OSTX_UNIT_hp	LITERAL1
+
+##################################
+# Unit constants — Informatics / Humidity (LITERAL1)
+##################################
+
+OSTX_UNIT_bit	LITERAL1
+OSTX_UNIT_By	LITERAL1
+OSTX_UNIT_Bd	LITERAL1
+OSTX_UNIT_pct	LITERAL1
+OSTX_UNIT_RH	LITERAL1
+
+##################################
+# Unit constants — Device Operations (LITERAL1)
+##################################
+
+OSTX_UNIT_cmd	LITERAL1
+OSTX_UNIT_pow_on	LITERAL1
+OSTX_UNIT_pow_off	LITERAL1
+OSTX_UNIT_set_val	LITERAL1
+OSTX_UNIT_get_val	LITERAL1
+OSTX_UNIT_get_st	LITERAL1
+OSTX_UNIT_rst	LITERAL1
+OSTX_UNIT_mv_up	LITERAL1
+OSTX_UNIT_mv_dn	LITERAL1
+OSTX_UNIT_mv_lt	LITERAL1
+OSTX_UNIT_mv_rt	LITERAL1
+OSTX_UNIT_mv_fw	LITERAL1
+OSTX_UNIT_mv_bk	LITERAL1
+OSTX_UNIT_stp	LITERAL1
+OSTX_UNIT_stp_e	LITERAL1
+OSTX_UNIT_mv_to	LITERAL1
+OSTX_UNIT_mv_by	LITERAL1
+OSTX_UNIT_rot_cw	LITERAL1
+OSTX_UNIT_rot_cc	LITERAL1
+
+##################################
+# Macros / config constants (LITERAL1)
+##################################
+
+OSTX_STATIC_DEFINE	LITERAL1
+OSTX_PACKET_MAX	LITERAL1
+OSTX_BODY_MAX	LITERAL1
+OSTX_VALUE_SCALE	LITERAL1
+OSTX_B62_MAX	LITERAL1
+OSTX_ID_MAX	LITERAL1
+OSTX_UNIT_MAX	LITERAL1
+OSTX_CMD_DATA_FULL	LITERAL1

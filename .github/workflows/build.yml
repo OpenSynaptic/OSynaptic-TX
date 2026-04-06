@@ -1,0 +1,127 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      verbose:
+        description: "Enable verbose output"
+        required: false
+        default: "false"
+
+jobs:
+  # -------------------------------------------------------------------------
+  # AVR cross-compile — closest to real deployment target
+  # -------------------------------------------------------------------------
+  avr-cross:
+    name: AVR cross-compile / ${{ matrix.mcu }}
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        mcu:
+          - atmega328p
+          - atmega2560
+          - atmega32u4
+          - attiny85
+          - attiny1614
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install avr-gcc toolchain
+        run: sudo apt-get update && sudo apt-get install -y gcc-avr binutils-avr avr-libc
+
+      - name: Compile library objects (${{ matrix.mcu }})
+        run: |
+          MCU=${{ matrix.mcu }}
+          OBJ_DIR=build/avr/$MCU
+          mkdir -p "$OBJ_DIR"
+          for src in src/ostx_crc.c src/ostx_b62.c src/ostx_packet.c \
+                     src/ostx_sensor.c src/ostx_static.c src/ostx_stream.c; do
+            obj="$OBJ_DIR/$(basename ${src%.c}.o)"
+            avr-gcc -mmcu=$MCU -Os -std=c89 -pedantic \
+                    -Wall -Wextra -Werror \
+                    -Isrc \
+                    -c "$src" -o "$obj"
+          done
+          echo "Objects for $MCU:"
+          avr-size "$OBJ_DIR"/*.o
+
+      - name: Archive Arduino library structure check
+        run: |
+          # Verify library.properties version field is present
+          grep -E "^version=" library.properties
+          # Verify top-level wrapper exists
+          test -f OSynaptic-TX.h
+          echo "Library structure OK"
+
+  # -------------------------------------------------------------------------
+  # ARM Cortex-M0 cross-compile (for users who also target SAMD / STM32)
+  # -------------------------------------------------------------------------
+  arm-cross:
+    name: ARM Cortex-M0 cross-compile
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install arm-none-eabi-gcc
+        run: sudo apt-get update && sudo apt-get install -y gcc-arm-none-eabi
+
+      - name: Compile library objects (Cortex-M0)
+        run: |
+          OBJ_DIR=build/arm/cortex-m0
+          mkdir -p "$OBJ_DIR"
+          for src in src/ostx_crc.c src/ostx_b62.c src/ostx_packet.c \
+                     src/ostx_sensor.c src/ostx_static.c src/ostx_stream.c; do
+            obj="$OBJ_DIR/$(basename ${src%.c}.o)"
+            arm-none-eabi-gcc \
+                -mcpu=cortex-m0 -mthumb \
+                -Os -std=c89 -pedantic \
+                -Wall -Wextra -Werror \
+                -Isrc \
+                -ffreestanding \
+                -c "$src" -o "$obj"
+          done
+          arm-none-eabi-size "$OBJ_DIR"/*.o
+
+  # -------------------------------------------------------------------------
+  # Size report — track Flash/RAM footprint over time
+  # -------------------------------------------------------------------------
+  size-report:
+    name: Flash/RAM footprint report (ATmega328P)
+    runs-on: ubuntu-22.04
+    needs: avr-cross
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install avr tools
+        run: sudo apt-get update && sudo apt-get install -y gcc-avr binutils-avr avr-libc
+
+      - name: Build and report size
+        run: |
+          mkdir -p build/size
+          # Compile all objects with API C (minimalist, Ultra tier)
+          for src in src/ostx_crc.c src/ostx_b62.c src/ostx_packet.c \
+                     src/ostx_stream.c; do
+            avr-gcc -mmcu=atmega328p -Os -std=c89 \
+                    -DOSTX_PACKET_MAX=32 -DOSTX_BODY_MAX=14 \
+                    -DOSTX_ID_MAX=3 -DOSTX_UNIT_MAX=4 \
+                    -Isrc \
+                    -c "$src" -o "build/size/$(basename ${src%.c}.o)"
+          done
+          echo ""
+          echo "=== Ultra tier (API C only) — ATmega328P ==="
+          avr-size -C --mcu=atmega328p build/size/*.o
+
+          # Full library — Standard tier
+          mkdir -p build/size_full
+          for src in src/ostx_crc.c src/ostx_b62.c src/ostx_packet.c \
+                     src/ostx_sensor.c src/ostx_static.c src/ostx_stream.c; do
+            avr-gcc -mmcu=atmega328p -Os -std=c89 \
+                    -Isrc \
+                    -c "$src" -o "build/size_full/$(basename ${src%.c}.o)"
+          done
+          echo ""
+          echo "=== Standard tier (all APIs) — ATmega328P ==="
+          avr-size -C --mcu=atmega328p build/size_full/*.o
