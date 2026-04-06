@@ -27,8 +27,8 @@
  * will red-underline the unknown token immediately.
  *
  * NOTE: OSTX_UNIT(sym) requires the literal token, not a macro-defined alias:
- *   #define MY UNIT  Cel
- *   OSTX_UNIT(MY)   /* expands to OSTX_UNIT_MY, not OSTX_UNIT_Cel */
+ *   #define MY  Cel
+ *   OSTX_UNIT(MY)   -- expands to OSTX_UNIT_MY, not OSTX_UNIT_Cel
  * For macro-indirection use OSTX_UNIT_Cel directly.
  *
  * UNITS WITH NON-IDENTIFIER CHARACTERS
