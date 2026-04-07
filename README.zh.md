@@ -1,7 +1,5 @@
 # OSynaptic-TX
 
-English README: [README.md](README.md)
-
 **面向 8 位 MCU 的 OpenSynaptic 单向发送编码器**。它用 **纯 C89**、**无堆内存**、最低可达 **21 字节 AVR 栈峰值** 的实现，把传感器读数编码为 OpenSynaptic FULL 帧。它可以直接对接 [OpenSynaptic](../OpenSynaptic/README.md) 服务端，以及 [OSynaptic-FX](../OSynaptic-FX/README.md) 网关，适配 UART / UDP / LoRa / RS-485 / CAN 等任意串行传输介质。
 
 ![C89](https://img.shields.io/badge/C-89-00599C?logo=c&logoColor=white)

@@ -1,7 +1,5 @@
 # OSynaptic-TX
 
-简体中文说明请见 [README.zh.md](README.zh.md)。
-
 **TX-only OpenSynaptic packet encoder for 8-bit MCUs** — encodes sensor readings into the OpenSynaptic wire format (FULL frames) with **pure C89**, **no heap**, and a stack peak as low as **21 bytes** on AVR. Pairs directly with the [OpenSynaptic](../OpenSynaptic/README.md) server and [OSynaptic-FX](../OSynaptic-FX/README.md) gateway over any serial transport (UART / UDP / LoRa / RS-485 / CAN).
 
 ![C89](https://img.shields.io/badge/C-89-00599C?logo=c&logoColor=white)
