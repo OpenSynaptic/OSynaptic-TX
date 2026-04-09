@@ -43,6 +43,7 @@ File > Examples > OSynaptic-TX > BasicTX → Upload
 
 ## 目录
 
+- [快速参考表](#快速参考表)
 - [为什么选择 OSynaptic-TX](#为什么选择-osynaptic-tx)
 - [三层 API 档位](#三层-api-档位)
 - [内存占用](#内存占用)
